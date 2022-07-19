@@ -1,8 +1,5 @@
 package net.shadew.nbt4j.tree;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import java.util.regex.Pattern;
 
 import net.shadew.nbt4j.NbtVisitor;
@@ -36,12 +33,7 @@ public final class StringTag implements Tag {
         return value;
     }
 
-    public static long countBytes(StringTag tag) {
-        String data = tag.asString();
-        return countBytes(data);
-    }
-
-    public static long countBytes(String data) {
+    public static long countUtfBytes(String data) {
         int len = data.length();
         long utfBytes = 2;
 
@@ -56,14 +48,6 @@ public final class StringTag implements Tag {
         }
 
         return utfBytes;
-    }
-
-    public static StringTag deserialize(DataInput in, int nesting) throws IOException {
-        return StringTag.of(in.readUTF());
-    }
-
-    public static void serialize(StringTag tag, DataOutput out) throws IOException {
-        out.writeUTF(tag.asString());
     }
 
     private static final Pattern SIMPLE_VALUE = Pattern.compile("[A-Za-z0-9._+-]+");

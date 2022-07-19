@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.ToLongFunction;
 
 import net.shadew.nbt4j.tree.*;
 import net.shadew.nbt4j.util.NbtException;
@@ -21,89 +20,76 @@ public enum TagType {
      * The {@code TAG_End} type, which has binary ID {@code 0} and is resembled by {@link EndTag}. Note that this type
      * is special and must not be used right away as a tag.
      */
-    END(0, "TAG_End", EndTag.class, 0, EndTag::doNotSerialize, EndTag::doNotDeserialize),
+    END(0, "TAG_End", EndTag.class),
 
     /**
      * The {@code TAG_Byte} type, which has binary ID {@code 1} and is resembled by {@link ByteTag}.
      */
-    BYTE(1, "TAG_Byte", ByteTag.class, 1, (tag, out) -> out.writeByte(tag.asByte()), (in, nesting) -> ByteTag.of(in.readByte())),
+    BYTE(1, "TAG_Byte", ByteTag.class),
 
     /**
      * The {@code TAG_Short} type, which has binary ID {@code 2} and is resembled by {@link ShortTag}.
      */
-    SHORT(2, "TAG_Short", ShortTag.class, 2, (tag, out) -> out.writeShort(tag.asShort()), (in, nesting) -> ShortTag.of(in.readShort())),
+    SHORT(2, "TAG_Short", ShortTag.class),
 
     /**
      * The {@code TAG_Int} type, which has binary ID {@code 3} and is resembled by {@link IntTag}.
      */
-    INT(3, "TAG_Int", IntTag.class, 4, (tag, out) -> out.writeInt(tag.asInt()), (in, nesting) -> IntTag.of(in.readInt())),
+    INT(3, "TAG_Int", IntTag.class),
 
     /**
      * The {@code TAG_Long} type, which has binary ID {@code 4} and is resembled by {@link LongTag}.
      */
-    LONG(4, "TAG_Long", LongTag.class, 8, (tag, out) -> out.writeLong(tag.asLong()), (in, nesting) -> LongTag.of(in.readLong())),
+    LONG(4, "TAG_Long", LongTag.class),
 
     /**
      * The {@code TAG_Float} type, which has binary ID {@code 5} and is resembled by {@link FloatTag}.
      */
-    FLOAT(5, "TAG_Float", FloatTag.class, 4, (tag, out) -> out.writeFloat(tag.asFloat()), (in, nesting) -> FloatTag.of(in.readFloat())),
+    FLOAT(5, "TAG_Float", FloatTag.class),
 
     /**
      * The {@code TAG_Double} type, which has binary ID {@code 6} and is resembled by {@link DoubleTag}.
      */
-    DOUBLE(6, "TAG_Double", DoubleTag.class, 8, (tag, out) -> out.writeDouble(tag.asDouble()), (in, nesting) -> DoubleTag.of(in.readDouble())),
+    DOUBLE(6, "TAG_Double", DoubleTag.class),
 
     /**
      * The {@code TAG_Byte_Array} type, which has binary ID {@code 7} and is resembled by {@link ByteArrayTag}.
      */
-    BYTE_ARRAY(7, "TAG_Byte_Array", ByteArrayTag.class, ByteArrayTag::countBytes, ByteArrayTag::serialize, ByteArrayTag::deserialize),
+    BYTE_ARRAY(7, "TAG_Byte_Array", ByteArrayTag.class),
 
     /**
      * The {@code TAG_String} type, which has binary ID {@code 8} and is resembled by {@link StringTag}.
      */
-    STRING(8, "TAG_String", StringTag.class, StringTag::countBytes, StringTag::serialize, StringTag::deserialize),
+    STRING(8, "TAG_String", StringTag.class),
 
     /**
      * The {@code TAG_List} type, which has binary ID {@code 9} and is resembled by {@link ListTag}.
      */
-    LIST(9, "TAG_List", ListTag.class, ListTag::countBytes, ListTag::serialize, ListTag::deserialize),
+    LIST(9, "TAG_List", ListTag.class),
 
     /**
      * The {@code TAG_Compound} type, which has binary ID {@code 10} and is resembled by {@link CompoundTag}.
      */
-    COMPOUND(10, "TAG_Compound", CompoundTag.class, CompoundTag::countBytes, CompoundTag::serialize, CompoundTag::deserialize),
+    COMPOUND(10, "TAG_Compound", CompoundTag.class),
 
     /**
      * The {@code TAG_Int_Array} type, which has binary ID {@code 11} and is resembled by {@link IntArrayTag}.
      */
-    INT_ARRAY(11, "TAG_Int_Array", IntArrayTag.class, IntArrayTag::countBytes, IntArrayTag::serialize, IntArrayTag::deserialize),
+    INT_ARRAY(11, "TAG_Int_Array", IntArrayTag.class),
 
     /**
      * The {@code TAG_Int_Array} type, which has binary ID {@code 11} and is resembled by {@link IntArrayTag}.
      */
-    LONG_ARRAY(12, "TAG_Long_Array", LongArrayTag.class, LongArrayTag::countBytes, LongArrayTag::serialize, LongArrayTag::deserialize);
+    LONG_ARRAY(12, "TAG_Long_Array", LongArrayTag.class);
 
     private final byte id;
     private final String name;
     private final Class<? extends Tag> type;
-    private final Serializer<Tag> serializer;
-    private final Deserializer<Tag> deserializer;
-    private final ToLongFunction<Tag> byteCounter;
 
-    <T extends Tag> TagType(int id, String name, Class<T> type, ToLongFunction<T> byteCounter, Serializer<T> serializer, Deserializer<T> deserializer) {
+    <T extends Tag> TagType(int id, String name, Class<T> type) {
         this.id = (byte) id;
         this.name = name;
         this.type = type;
-
-        // We can do a checked cast here because we exactly know the class of 'T' as 'type', so let's cast it here and
-        // avoid hacky and unnecessary unchecked casting
-        this.byteCounter = tag -> byteCounter.applyAsLong(type.cast(tag));
-        this.serializer = (tag, out) -> serializer.write(type.cast(tag), out);
-        this.deserializer = deserializer::read;
-    }
-
-    <T extends Tag> TagType(int id, String name, Class<T> type, int payloadBytes, Serializer<T> serializer, Deserializer<T> deserializer) {
-        this(id, name, type, t -> payloadBytes, serializer, deserializer);
     }
 
 
@@ -242,26 +228,6 @@ public enum TagType {
     }
 
     /**
-     * Writes the payload of the given tag to the given {@link DataOutput}.
-     *
-     * @param t   The tag to serialize
-     * @param out The output stream to serialize to
-     * @throws IOException              When an I/O error occurs
-     * @throws NullPointerException     When the given output stream is null
-     * @throws IllegalArgumentException When the given tag is not a valid implementation ({@link
-     *                                  #isValidImplementation(Tag)}).
-     */
-    public void write(Tag t, DataOutput out) throws IOException {
-        if (!isValidImplementation(t)) {
-            throw new IllegalArgumentException("The given tag is not a valid implementation");
-        }
-        if (out == null) {
-            throw new NullPointerException("Output stream is null");
-        }
-        serializer.write(t, out);
-    }
-
-    /**
      * Writes the type ID of this {@link TagType} as a byte to the given output stream. This type can later be read
      * through an input stream via {@link #readType}.
      *
@@ -274,44 +240,6 @@ public enum TagType {
             throw new NullPointerException("Output stream is null");
         }
         out.writeByte(id);
-    }
-
-    public static final int MAX_NESTING = 512;
-
-    /**
-     * Reads payload in the format of this tag type and creates a new tag instance.
-     *
-     * @param in The input stream to read from
-     * @return The created tag instance
-     *
-     * @throws NbtException         When the NBT format is invalid
-     * @throws IOException          When an I/O error occurs
-     * @throws NullPointerException When the given input stream is null
-     */
-    public Tag read(DataInput in, int nesting) throws IOException {
-        if (in == null) {
-            throw new NullPointerException("Input stream is null");
-        }
-        if (nesting > MAX_NESTING) {
-            throw new NbtException("Tried to read too complex tag (nesting level > 512)");
-        }
-        return deserializer.read(in, nesting);
-    }
-
-    /**
-     * Returns the expected size, in bytes, of the payload of the given tag.
-     *
-     * @param t The tag to measure the payload of
-     * @return The amount of bytes measured
-     *
-     * @throws IllegalArgumentException When the given tag is not a valid implementation ({@link
-     *                                  #isValidImplementation(Tag)}).
-     */
-    public long countBytes(Tag t) {
-        if (!isValidImplementation(t)) {
-            throw new IllegalArgumentException("The given tag is not a valid implementation");
-        }
-        return byteCounter.applyAsLong(t);
     }
 
     public boolean isNumeric() {

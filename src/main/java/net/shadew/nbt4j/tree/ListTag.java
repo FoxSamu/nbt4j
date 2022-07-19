@@ -1,15 +1,11 @@
 package net.shadew.nbt4j.tree;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import net.shadew.nbt4j.NbtVisitor;
 import net.shadew.nbt4j.TagType;
-import net.shadew.nbt4j.util.NbtException;
 
 public final class ListTag implements List<Tag>, RandomAccess, Tag {
     private TagType elementType = TagType.END;
@@ -522,48 +518,6 @@ public final class ListTag implements List<Tag>, RandomAccess, Tag {
     public static ListTag of(Tag... v) {
         ListTag tag = new ListTag();
         tag.addAll(Arrays.asList(v));
-        return tag;
-    }
-
-    public static long countBytes(ListTag tag) {
-        long bytes = 5; // Element type (1) and length (4)
-        for (Tag element : tag) {
-            bytes += element.type().countBytes(element);
-        }
-        return bytes;
-    }
-
-    public static void serialize(ListTag tag, DataOutput out) throws IOException {
-        TagType type = tag.elementType;
-        if (type == TagType.END && !tag.isEmpty()) {
-            throw new NbtException("Cannot serialize TAG_List that is not empty but has TAG_End element type");
-        }
-
-        type.writeType(out);
-        out.writeInt(tag.size());
-        for (Tag element : tag) {
-            if (!type.isValidImplementation(element)) {
-                throw new NbtException("Cannot serialize tag of incorrect type in TAG_List");
-            }
-            type.write(element, out);
-        }
-    }
-
-    public static ListTag deserialize(DataInput in, int nesting) throws IOException {
-        TagType type = TagType.readType(in);
-        int length = in.readInt();
-        if (length < 0) {
-            throw new NbtException("Cannot deserialize TAG_List with negative length (" + length + ")");
-        }
-        if (type == TagType.END && length != 0) {
-            throw new NbtException("Cannot deserialize nonempty TAG_List with TAG_End element type");
-        }
-
-        ListTag tag = new ListTag(type);
-        while (length > 0) {
-            tag.add(type.read(in, nesting + 1));
-            length--;
-        }
         return tag;
     }
 

@@ -1,15 +1,11 @@
 package net.shadew.nbt4j.tree;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import net.shadew.nbt4j.NbtVisitor;
 import net.shadew.nbt4j.TagType;
-import net.shadew.nbt4j.util.NbtException;
 
 public final class CompoundTag implements Tag {
     private LinkedHashMap<String, Tag> tags = new LinkedHashMap<>();
@@ -441,51 +437,6 @@ public final class CompoundTag implements Tag {
 
     public static CompoundTag of(CompoundTag o) {
         return new CompoundTag(o);
-    }
-
-    public static long countBytes(CompoundTag tag) {
-        long bytes = 1; // 1 for TAG_End ID
-
-        for (Map.Entry<String, Tag> entry : tag.tags.entrySet()) {
-            bytes += 1; // Type ID
-            bytes += StringTag.countBytes(entry.getKey()); // Name
-
-            Tag element = entry.getValue();
-            bytes += element.type().countBytes(element); // Payload
-        }
-        return bytes;
-    }
-
-    public static void serialize(CompoundTag tag, DataOutput out) throws IOException {
-        for (Map.Entry<String, Tag> entry : tag.tags.entrySet()) {
-            String name = entry.getKey();
-            Tag element = entry.getValue();
-            TagType type = element.type();
-
-            if (!type.isValidImplementation(element)) {
-                throw new NbtException("Cannot serialize tag of unsupported implementation in TAG_Compound");
-            }
-
-            type.writeType(out);
-            out.writeUTF(name);
-            type.write(element, out);
-        }
-        // Terminator
-        TagType.END.writeType(out);
-    }
-
-    public static CompoundTag deserialize(DataInput in, int nesting) throws IOException {
-        CompoundTag tag = new CompoundTag();
-        TagType type;
-        while ((type = TagType.readType(in)) != TagType.END) {
-            String name = in.readUTF();
-            if (tag.contains(name)) {
-                throw new NbtException("Tag with name '" + name + "' exists twice in TAG_Compound");
-            }
-            Tag element = type.read(in, nesting + 1);
-            tag.put(name, element);
-        }
-        return tag;
     }
 
     @Override

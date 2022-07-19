@@ -1,9 +1,5 @@
 package net.shadew.nbt4j.tree;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-
 import net.shadew.nbt4j.NbtVisitor;
 import net.shadew.nbt4j.TagType;
 
@@ -61,22 +57,6 @@ public final class ByteArrayTag implements Tag {
 
     public static ByteArrayTag empty() {
         return EMPTY;
-    }
-
-    public static long countBytes(ByteArrayTag tag) {
-        return 4L + tag.length(); // 4 for the length header
-    }
-
-    public static void serialize(ByteArrayTag tag, DataOutput out) throws IOException {
-        out.writeInt(tag.length());
-        out.write(tag.bytes);
-    }
-
-    public static ByteArrayTag deserialize(DataInput in, int nesting) throws IOException {
-        int len = in.readInt();
-        ByteArrayTag tag = new ByteArrayTag(len);
-        in.readFully(tag.bytes);
-        return tag;
     }
 
     @Override

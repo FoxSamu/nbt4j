@@ -21,7 +21,7 @@ public class ByteCounter extends FilterNbtVisitor {
 
     private void visitName(String name) {
         if (includeName) {
-            bytes += 1L + StringTag.countBytes(name == null ? "" : name);
+            bytes += 1L + StringTag.countUtfBytes(name == null ? "" : name);
         }
     }
 
@@ -70,7 +70,7 @@ public class ByteCounter extends FilterNbtVisitor {
     @Override
     public void visitString(String value, String name) {
         visitName(name);
-        bytes += StringTag.countBytes(value);
+        bytes += StringTag.countUtfBytes(value);
         super.visitString(value, name);
     }
 

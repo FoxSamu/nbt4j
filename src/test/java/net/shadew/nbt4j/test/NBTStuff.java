@@ -5,10 +5,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import net.shadew.nbt4j.NBTIO;
+import net.shadew.nbt4j.NbtIO;
 import net.shadew.nbt4j.region.RegionFile;
 import net.shadew.nbt4j.region.RegionFileCache;
-import net.shadew.nbt4j.snbt.SNBTSerializer;
+import net.shadew.nbt4j.snbt.SnbtSerializer;
 import net.shadew.nbt4j.tree.Tag;
 
 public class NBTStuff {
@@ -18,11 +18,11 @@ public class NBTStuff {
         Tag tag;
         try (RegionFileCache region = new RegionFileCache(regionDir.toPath(), null, RegionFile.DSYNC | RegionFile.VERBOSE | RegionFile.BUFFERED, 16, true)) {
             try (InputStream in = region.openInputStream(33, 5)) {
-                tag = NBTIO.readTag(new DataInputStream(in));
+                tag = NbtIO.readTag(new DataInputStream(in));
             }
         }
 
-        SNBTSerializer snbt = new SNBTSerializer()
+        SnbtSerializer snbt = new SnbtSerializer()
             .ansiHighlight(true)
             .indentString("    ")
             .quoteAllKeys(true);

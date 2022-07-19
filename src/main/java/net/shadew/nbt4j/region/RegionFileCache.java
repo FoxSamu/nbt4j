@@ -4,7 +4,7 @@ import java.io.*;
 import java.nio.file.Path;
 import java.util.*;
 
-public class RegionFileCache implements Closeable, Flushable {
+public final class RegionFileCache implements Closeable, Flushable {
     private final Path directory;
     private final RegionFileFixer fixer;
     private final int openFlags;

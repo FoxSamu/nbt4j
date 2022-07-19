@@ -5,24 +5,19 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import net.shadew.nbt4j.TagType;
-import net.shadew.nbt4j.util.FlexibleLongArray;
 
-public class LongArrayTag extends FlexibleLongArray implements Tag {
-    public LongArrayTag() {
+public final class LongArrayTag extends Tag {
+    private static final LongArrayTag EMPTY = of(0);
+
+    private final long[] longs;
+
+    private LongArrayTag(int len) {
+        this.longs = new long[len];
     }
 
-    // To be consistent with other tag constructors (except empty constructors), these are private and must be accessed
-    // via one of the 'of' methods below
-    private LongArrayTag(long[] l, int off, int len) {
-        super(l, off, len);
-    }
-
-    private LongArrayTag(long... l) {
-        super(l);
-    }
-
-    private LongArrayTag(FlexibleLongArray copy) {
-        super(copy);
+    private LongArrayTag(long[] longs, int off, int len) {
+        this(len);
+        System.arraycopy(longs, off, this.longs, 0, len);
     }
 
     @Override
@@ -32,19 +27,39 @@ public class LongArrayTag extends FlexibleLongArray implements Tag {
 
     @Override
     public LongArrayTag copy() {
-        return of(this);
+        return of(longs);
     }
 
-    public static LongArrayTag of(long... longs) {
-        return new LongArrayTag(longs);
+    public long[] longs() {
+        return longs;
+    }
+
+    public int length() {
+        return longs.length;
+    }
+
+    public static LongArrayTag of(int length) {
+        return new LongArrayTag(length);
+    }
+
+    public static LongArrayTag of(long[] longs) {
+        return new LongArrayTag(longs, 0, longs.length);
     }
 
     public static LongArrayTag of(long[] longs, int off, int len) {
         return new LongArrayTag(longs, off, len);
     }
 
-    public static LongArrayTag of(FlexibleLongArray copy) {
-        return new LongArrayTag(copy);
+    public static LongArrayTag of(LongArrayTag copy) {
+        return new LongArrayTag(copy.longs, 0, copy.length());
+    }
+
+    public static LongArrayTag of(LongArrayTag copy, int off, int len) {
+        return new LongArrayTag(copy.longs, off, len);
+    }
+
+    public static LongArrayTag empty() {
+        return EMPTY;
     }
 
     public static long countBytes(LongArrayTag tag) {
@@ -53,29 +68,23 @@ public class LongArrayTag extends FlexibleLongArray implements Tag {
 
     public static void serialize(LongArrayTag tag, DataOutput out) throws IOException {
         out.writeInt(tag.length());
-        FlexibleLongArray.writeLongs(tag, out);
+        for (long l : tag.longs) {
+            out.writeLong(l);
+        }
     }
 
     public static LongArrayTag deserialize(DataInput in, int nesting) throws IOException {
-        LongArrayTag tag = new LongArrayTag();
         int len = in.readInt();
-        FlexibleLongArray.readLongs(tag, in, len);
+        LongArrayTag tag = new LongArrayTag(len);
+        long[] longs = tag.longs;
+        for (int i = 0; i < len; i++) {
+            longs[i] = in.readLong();
+        }
         return tag;
     }
 
     @Override
     public String toString() {
-        int iMax = length() - 1;
-        if (iMax == -1)
-            return "[L;]";
-
-        StringBuilder b = new StringBuilder();
-        b.append("[L;");
-        for (int i = 0; ; i++) {
-            b.append(get(i));
-            if (i == iMax)
-                return b.append(']').toString();
-            b.append(", ");
-        }
+        return "TAG_LongArray[" + longs.length + "]";
     }
 }

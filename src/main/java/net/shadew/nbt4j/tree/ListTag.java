@@ -3,18 +3,16 @@ package net.shadew.nbt4j.tree;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.RandomAccess;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import net.shadew.nbt4j.TagType;
-import net.shadew.nbt4j.util.NBTException;
+import net.shadew.nbt4j.util.NbtException;
 
-public class ListTag extends ArrayList<Tag> implements Tag, RandomAccess {
+public final class ListTag extends Tag implements List<Tag>, RandomAccess {
     private TagType elementType = TagType.END;
+    private final ArrayList<Tag> elements = new ArrayList<>();
 
     public ListTag() {
 
@@ -65,38 +63,128 @@ public class ListTag extends ArrayList<Tag> implements Tag, RandomAccess {
     @Override
     public Tag set(int index, Tag element) {
         validateNewElement(element);
-        return super.set(index, element);
+        return elements.set(index, element);
+    }
+
+    @Override
+    public int size() {
+        return elements.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return elements.isEmpty();
+    }
+
+    @Override
+    public boolean contains(Object o) {
+        return elements.contains(o);
+    }
+
+    @Override
+    public Iterator<Tag> iterator() {
+        return elements.iterator();
+    }
+
+    @Override
+    public Object[] toArray() {
+        return elements.toArray();
+    }
+
+    @Override
+    public <T> T[] toArray(T[] a) {
+        return elements.toArray(a);
     }
 
     @Override
     public boolean add(Tag tag) {
         validateNewElement(tag);
-        return super.add(tag);
+        return elements.add(tag);
+    }
+
+    @Override
+    public boolean remove(Object o) {
+        return elements.remove(o);
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> c) {
+        return elements.containsAll(c);
     }
 
     @Override
     public void add(int index, Tag element) {
         validateNewElement(element);
-        super.add(index, element);
+        elements.add(index, element);
+    }
+
+    @Override
+    public Tag remove(int index) {
+        return elements.remove(index);
+    }
+
+    @Override
+    public int indexOf(Object o) {
+        return elements.indexOf(o);
+    }
+
+    @Override
+    public int lastIndexOf(Object o) {
+        return elements.lastIndexOf(o);
+    }
+
+    @Override
+    public ListIterator<Tag> listIterator() {
+        return elements.listIterator();
+    }
+
+    @Override
+    public ListIterator<Tag> listIterator(int index) {
+        return elements.listIterator(index);
+    }
+
+    @Override
+    public List<Tag> subList(int fromIndex, int toIndex) {
+        return elements.subList(fromIndex, toIndex);
     }
 
     @Override
     public boolean addAll(Collection<? extends Tag> c) {
         c.forEach(this::validateNewElement);
-        return super.addAll(c);
+        return elements.addAll(c);
     }
 
     @Override
     public boolean addAll(int index, Collection<? extends Tag> c) {
         c.forEach(this::validateNewElement);
-        return super.addAll(index, c);
+        return elements.addAll(index, c);
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        return elements.removeAll(c);
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> c) {
+        return elements.retainAll(c);
+    }
+
+    @Override
+    public void clear() {
+        elements.clear();
+    }
+
+    @Override
+    public Tag get(int index) {
+        return elements.get(index);
     }
 
     public NumericTag getNumeric(int index) {
         try {
             return (NumericTag) get(index);
         } catch (ClassCastException ignored) { }
-        return NumericTag.ZERO;
+        return ByteTag.FALSE;
     }
 
     public byte getByte(int index) {
@@ -139,31 +227,31 @@ public class ListTag extends ArrayList<Tag> implements Tag, RandomAccess {
     }
 
     public String getString(int index) {
-        return getTypedTag(index, StringTag.class, StringTag::getString, () -> "");
+        return getTypedTag(index, StringTag.class, StringTag::asString, () -> "");
     }
 
     public byte[] getByteArray(int index) {
-        return getTypedTag(index, ByteArrayTag.class, ByteArrayTag::getAll, () -> new byte[0]);
+        return getTypedTag(index, ByteArrayTag.class, ByteArrayTag::bytes, () -> new byte[0]);
     }
 
     public int[] getIntArray(int index) {
-        return getTypedTag(index, IntArrayTag.class, IntArrayTag::getAll, () -> new int[0]);
+        return getTypedTag(index, IntArrayTag.class, IntArrayTag::ints, () -> new int[0]);
     }
 
     public long[] getLongArray(int index) {
-        return getTypedTag(index, LongArrayTag.class, LongArrayTag::getAll, () -> new long[0]);
+        return getTypedTag(index, LongArrayTag.class, LongArrayTag::longs, () -> new long[0]);
     }
 
     public ByteArrayTag getByteArrayTag(int index) {
-        return getTypedTag(index, ByteArrayTag.class, Function.identity(), ByteArrayTag::new);
+        return getTypedTag(index, ByteArrayTag.class, Function.identity(), ByteArrayTag::empty);
     }
 
     public IntArrayTag getIntArrayTag(int index) {
-        return getTypedTag(index, IntArrayTag.class, Function.identity(), IntArrayTag::new);
+        return getTypedTag(index, IntArrayTag.class, Function.identity(), IntArrayTag::empty);
     }
 
     public LongArrayTag getLongArrayTag(int index) {
-        return getTypedTag(index, LongArrayTag.class, Function.identity(), LongArrayTag::new);
+        return getTypedTag(index, LongArrayTag.class, Function.identity(), LongArrayTag::empty);
     }
 
     public ListTag getListTag(int index) {
@@ -447,14 +535,14 @@ public class ListTag extends ArrayList<Tag> implements Tag, RandomAccess {
     public static void serialize(ListTag tag, DataOutput out) throws IOException {
         TagType type = tag.elementType;
         if (type == TagType.END && !tag.isEmpty()) {
-            throw new NBTException("Cannot serialize TAG_List that is not empty but has TAG_End element type");
+            throw new NbtException("Cannot serialize TAG_List that is not empty but has TAG_End element type");
         }
 
         type.writeType(out);
         out.writeInt(tag.size());
         for (Tag element : tag) {
             if (!type.isValidImplementation(element)) {
-                throw new NBTException("Cannot serialize tag of incorrect type in TAG_List");
+                throw new NbtException("Cannot serialize tag of incorrect type in TAG_List");
             }
             type.write(element, out);
         }
@@ -464,10 +552,10 @@ public class ListTag extends ArrayList<Tag> implements Tag, RandomAccess {
         TagType type = TagType.readType(in);
         int length = in.readInt();
         if (length < 0) {
-            throw new NBTException("Cannot deserialize TAG_List with negative length (" + length + ")");
+            throw new NbtException("Cannot deserialize TAG_List with negative length (" + length + ")");
         }
         if (type == TagType.END && length != 0) {
-            throw new NBTException("Cannot deserialize nonempty TAG_List with TAG_End element type");
+            throw new NbtException("Cannot deserialize nonempty TAG_List with TAG_End element type");
         }
 
         ListTag tag = new ListTag(type);
@@ -480,17 +568,6 @@ public class ListTag extends ArrayList<Tag> implements Tag, RandomAccess {
 
     @Override
     public String toString() {
-        int iMax = size() - 1;
-        if (iMax == -1)
-            return "[]";
-
-        StringBuilder b = new StringBuilder();
-        b.append("[");
-        for (int i = 0; ; i++) {
-            b.append(get(i));
-            if (i == iMax)
-                return b.append(']').toString();
-            b.append(", ");
-        }
+        return "TAG_List[" + size() + "]";
     }
 }

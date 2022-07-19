@@ -5,9 +5,9 @@ import java.io.*;
 import net.shadew.nbt4j.tree.CompoundTag;
 import net.shadew.nbt4j.tree.EndTag;
 import net.shadew.nbt4j.tree.Tag;
-import net.shadew.nbt4j.util.NBTException;
+import net.shadew.nbt4j.util.NbtException;
 
-public class NBTIO {
+public class NbtIO {
     public static Tag readTag(DataInput in) throws IOException {
         TagType type = TagType.readType(in);
         if (type == TagType.END) {
@@ -22,7 +22,7 @@ public class NBTIO {
     public static void writeTag(Tag tag, DataOutput out) throws IOException {
         TagType type = tag.type();
         if (!type.isValidImplementation(tag)) {
-            throw new NBTException("Tag implementation is not one of the supported implementations");
+            throw new NbtException("Tag implementation is not one of the supported implementations");
         }
 
         type.writeType(out);
@@ -35,7 +35,7 @@ public class NBTIO {
         // deserialization
         TagType type = TagType.readType(in);
         if (type != TagType.COMPOUND) {
-            throw new NBTException("NBT data does not have TAG_Compound as root");
+            throw new NbtException("NBT data does not have TAG_Compound as root");
         }
 
         in.readUTF(); // Tag name, which we ignore

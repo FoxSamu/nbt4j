@@ -2,7 +2,7 @@ package net.shadew.nbt4j.tree;
 
 import net.shadew.nbt4j.TagType;
 
-public class FloatTag implements NumericTag {
+public final class FloatTag extends NumericTag {
     private final float value;
 
     private FloatTag(float value) {
@@ -101,6 +101,6 @@ public class FloatTag implements NumericTag {
 
     @Override
     public String toString() {
-        return value + "f";
+        return "TAG_Float:" + value;
     }
 }

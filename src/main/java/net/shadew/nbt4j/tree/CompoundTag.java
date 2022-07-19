@@ -8,9 +8,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import net.shadew.nbt4j.TagType;
-import net.shadew.nbt4j.util.NBTException;
+import net.shadew.nbt4j.util.NbtException;
 
-public class CompoundTag implements Tag {
+public final class CompoundTag extends Tag {
     private LinkedHashMap<String, Tag> tags = new LinkedHashMap<>();
 
     public CompoundTag() {
@@ -168,7 +168,7 @@ public class CompoundTag implements Tag {
     }
 
     public NumericTag getNumeric(String name) {
-        return getNumericOrDefault(name, NumericTag.ZERO);
+        return getNumericOrDefault(name, ByteTag.FALSE);
     }
 
     public NumericTag getNumericOrDefault(String name, NumericTag def) {
@@ -271,55 +271,55 @@ public class CompoundTag implements Tag {
     }
 
     public String getString(String name) {
-        return getTypedTag(name, StringTag.class, StringTag::getString, () -> "");
+        return getTypedTag(name, StringTag.class, StringTag::asString, () -> "");
     }
 
     public String getStringOrDefault(String name, String def) {
-        return getTypedTag(name, StringTag.class, StringTag::getString, () -> def);
+        return getTypedTag(name, StringTag.class, StringTag::asString, () -> def);
     }
 
     public String getStringOrDefault(String name, Supplier<String> def) {
-        return getTypedTag(name, StringTag.class, StringTag::getString, def);
+        return getTypedTag(name, StringTag.class, StringTag::asString, def);
     }
 
     public byte[] getByteArray(String name) {
-        return getTypedTag(name, ByteArrayTag.class, ByteArrayTag::getAll, () -> new byte[0]);
+        return getTypedTag(name, ByteArrayTag.class, ByteArrayTag::bytes, () -> new byte[0]);
     }
 
     public byte[] getByteArrayOrDefault(String name, byte[] def) {
-        return getTypedTag(name, ByteArrayTag.class, ByteArrayTag::getAll, () -> def);
+        return getTypedTag(name, ByteArrayTag.class, ByteArrayTag::bytes, () -> def);
     }
 
     public byte[] getByteArrayOrDefault(String name, Supplier<byte[]> def) {
-        return getTypedTag(name, ByteArrayTag.class, ByteArrayTag::getAll, def);
+        return getTypedTag(name, ByteArrayTag.class, ByteArrayTag::bytes, def);
     }
 
     public int[] getIntArray(String name) {
-        return getTypedTag(name, IntArrayTag.class, IntArrayTag::getAll, () -> new int[0]);
+        return getTypedTag(name, IntArrayTag.class, IntArrayTag::ints, () -> new int[0]);
     }
 
     public int[] getIntArrayOrDefault(String name, int[] def) {
-        return getTypedTag(name, IntArrayTag.class, IntArrayTag::getAll, () -> def);
+        return getTypedTag(name, IntArrayTag.class, IntArrayTag::ints, () -> def);
     }
 
     public int[] getIntArrayOrDefault(String name, Supplier<int[]> def) {
-        return getTypedTag(name, IntArrayTag.class, IntArrayTag::getAll, def);
+        return getTypedTag(name, IntArrayTag.class, IntArrayTag::ints, def);
     }
 
     public long[] getLongArray(String name) {
-        return getTypedTag(name, LongArrayTag.class, LongArrayTag::getAll, () -> new long[0]);
+        return getTypedTag(name, LongArrayTag.class, LongArrayTag::longs, () -> new long[0]);
     }
 
     public long[] getLongArrayOrDefault(String name, long[] def) {
-        return getTypedTag(name, LongArrayTag.class, LongArrayTag::getAll, () -> def);
+        return getTypedTag(name, LongArrayTag.class, LongArrayTag::longs, () -> def);
     }
 
     public long[] getLongArrayOrDefault(String name, Supplier<long[]> def) {
-        return getTypedTag(name, LongArrayTag.class, LongArrayTag::getAll, def);
+        return getTypedTag(name, LongArrayTag.class, LongArrayTag::longs, def);
     }
 
     public ByteArrayTag getByteArrayTag(String name) {
-        return getTypedTag(name, ByteArrayTag.class, Function.identity(), ByteArrayTag::new);
+        return getTypedTag(name, ByteArrayTag.class, Function.identity(), ByteArrayTag::empty);
     }
 
     public ByteArrayTag getByteArrayTagOrDefault(String name, ByteArrayTag def) {
@@ -331,7 +331,7 @@ public class CompoundTag implements Tag {
     }
 
     public IntArrayTag getIntArrayTag(String name) {
-        return getTypedTag(name, IntArrayTag.class, Function.identity(), IntArrayTag::new);
+        return getTypedTag(name, IntArrayTag.class, Function.identity(), IntArrayTag::empty);
     }
 
     public IntArrayTag getIntArrayTagOrDefault(String name, IntArrayTag def) {
@@ -343,7 +343,7 @@ public class CompoundTag implements Tag {
     }
 
     public LongArrayTag getLongArrayTag(String name) {
-        return getTypedTag(name, LongArrayTag.class, Function.identity(), LongArrayTag::new);
+        return getTypedTag(name, LongArrayTag.class, Function.identity(), LongArrayTag::empty);
     }
 
     public LongArrayTag getLongArrayTagOrDefault(String name, LongArrayTag def) {
@@ -462,7 +462,7 @@ public class CompoundTag implements Tag {
             TagType type = element.type();
 
             if (!type.isValidImplementation(element)) {
-                throw new NBTException("Cannot serialize tag of unsupported implementation in TAG_Compound");
+                throw new NbtException("Cannot serialize tag of unsupported implementation in TAG_Compound");
             }
 
             type.writeType(out);
@@ -479,7 +479,7 @@ public class CompoundTag implements Tag {
         while ((type = TagType.readType(in)) != TagType.END) {
             String name = in.readUTF();
             if (tag.contains(name)) {
-                throw new NBTException("Tag with name '" + name + "' exists twice in TAG_Compound");
+                throw new NbtException("Tag with name '" + name + "' exists twice in TAG_Compound");
             }
             Tag element = type.read(in, nesting + 1);
             tag.put(name, element);
@@ -489,23 +489,6 @@ public class CompoundTag implements Tag {
 
     @Override
     public String toString() {
-        Iterator<Map.Entry<String, Tag>> i = tags.entrySet().iterator();
-        if (!i.hasNext())
-            return "{}";
-
-        StringBuilder sb = new StringBuilder();
-        sb.append('{');
-        while (true) {
-            Map.Entry<String, Tag> entry = i.next();
-            String name = entry.getKey();
-            Tag element = entry.getValue();
-
-            sb.append(StringTag.makeSnbt(name))
-              .append(": ").append(element);
-
-            if (!i.hasNext())
-                return sb.append("}").toString();
-            sb.append(", ");
-        }
+        return "TAG_Compound[" + tags.size() + "]";
     }
 }

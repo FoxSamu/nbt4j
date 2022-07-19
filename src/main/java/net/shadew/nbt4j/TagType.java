@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.function.ToLongFunction;
 
 import net.shadew.nbt4j.tree.*;
-import net.shadew.nbt4j.util.NBTException;
+import net.shadew.nbt4j.util.NbtException;
 
 /**
  * An enum with all NBT tag types. The {@link Tag} implementations supported by NBT4j are limited to the {@link
@@ -162,13 +162,13 @@ public enum TagType {
 
     /**
      * Reads a {@link TagType} from the given input stream. This reads exactly one byte which is then turned into a
-     * {@link TagType} like {@link #forId}, but throwing an {@link NBTException} instead when the ID is unknown.
+     * {@link TagType} like {@link #forId}, but throwing an {@link NbtException} instead when the ID is unknown.
      *
      * @param in The input stream to read from
      * @return The {@link TagType} read
      *
      * @throws NullPointerException When the given stream is null
-     * @throws NBTException         When the read type ID is an unknown ID
+     * @throws NbtException         When the read type ID is an unknown ID
      * @throws EOFException         When no bytes are left in the input stream
      * @throws IOException          When an I/O error occurs
      */
@@ -178,7 +178,7 @@ public enum TagType {
         }
         byte byteId = in.readByte();
         if (!isValidId(byteId)) {
-            throw new NBTException("Found unknown tag ID " + byteId);
+            throw new NbtException("Found unknown tag ID " + byteId);
         }
         return BY_ID.get(byteId);
     }
@@ -284,7 +284,7 @@ public enum TagType {
      * @param in The input stream to read from
      * @return The created tag instance
      *
-     * @throws NBTException         When the NBT format is invalid
+     * @throws NbtException         When the NBT format is invalid
      * @throws IOException          When an I/O error occurs
      * @throws NullPointerException When the given input stream is null
      */
@@ -293,7 +293,7 @@ public enum TagType {
             throw new NullPointerException("Input stream is null");
         }
         if (nesting > MAX_NESTING) {
-            throw new NBTException("Tried to read too complex tag (nesting level > 512)");
+            throw new NbtException("Tried to read too complex tag (nesting level > 512)");
         }
         return deserializer.read(in, nesting);
     }

@@ -5,7 +5,7 @@ import java.util.Map;
 
 import net.shadew.nbt4j.tree.*;
 
-public class SNBTSerializer {
+public class SnbtSerializer {
     private static final String ANSI_NUMBER = "\033[91m";
     private static final String ANSI_STRING = "\033[92m";
     private static final String ANSI_KEY = "\033[96m";
@@ -21,32 +21,32 @@ public class SNBTSerializer {
 
     private int indent;
 
-    public SNBTSerializer quoteAllStrings(boolean v) {
+    public SnbtSerializer quoteAllStrings(boolean v) {
         quoteAllStrings = v;
         return this;
     }
 
-    public SNBTSerializer quoteAllKeys(boolean v) {
+    public SnbtSerializer quoteAllKeys(boolean v) {
         quoteAllKeys = v;
         return this;
     }
 
-    public SNBTSerializer arrayPackThreshold(int v) {
+    public SnbtSerializer arrayPackThreshold(int v) {
         arrayPackThreshold = v;
         return this;
     }
 
-    public SNBTSerializer packed(boolean v) {
+    public SnbtSerializer packed(boolean v) {
         packed = v;
         return this;
     }
 
-    public SNBTSerializer ansiHighlight(boolean v) {
+    public SnbtSerializer ansiHighlight(boolean v) {
         ansiHighlight = v;
         return this;
     }
 
-    public SNBTSerializer indentString(String v) {
+    public SnbtSerializer indentString(String v) {
         indentString = v;
         return this;
     }
@@ -90,9 +90,9 @@ public class SNBTSerializer {
     private void writeString(StringTag str) {
         addAnsi(ANSI_STRING);
         if (quoteAllStrings) {
-            builder.append(StringTag.makeQuotedSnbt(str.getString()));
+            builder.append(StringTag.makeQuotedSnbt(str.asString()));
         } else {
-            builder.append(StringTag.makeSnbt(str.getString()));
+            builder.append(StringTag.makeSnbt(str.asString()));
         }
         addAnsi(ANSI_RESET);
     }

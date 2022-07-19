@@ -2,7 +2,7 @@ package net.shadew.nbt4j.tree;
 
 import net.shadew.nbt4j.TagType;
 
-public class LongTag implements NumericTag {
+public final class LongTag extends NumericTag {
     private final long value;
 
     private LongTag(long value) {
@@ -101,6 +101,6 @@ public class LongTag implements NumericTag {
 
     @Override
     public String toString() {
-        return value + "l";
+        return "TAG_Long:" + value;
     }
 }

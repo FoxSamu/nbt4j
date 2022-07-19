@@ -37,11 +37,11 @@ public enum Compression {
         if (id < 1 || id > 3) {
             throw new IllegalArgumentException("Unknown ID " + id);
         }
-        switch (id) {
-            case 1: return GZIPPED;
-            case 2: return DEFLATED;
-            default: return UNCOMPRESSED;
-        }
+        return switch (id) {
+            case 1 -> GZIPPED;
+            case 2 -> DEFLATED;
+            default -> UNCOMPRESSED;
+        };
     }
 
     public int getRegionTypeId() {

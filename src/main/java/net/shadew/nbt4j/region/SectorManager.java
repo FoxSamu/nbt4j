@@ -2,7 +2,7 @@ package net.shadew.nbt4j.region;
 
 import java.util.BitSet;
 
-public class SectorManager {
+class SectorManager {
     private final BitSet map = new BitSet();
 
     public synchronized void allocate(int off, int len) {

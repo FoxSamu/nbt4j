@@ -2,7 +2,7 @@ package net.shadew.nbt4j.tree;
 
 import net.shadew.nbt4j.TagType;
 
-public class IntTag implements NumericTag {
+public final class IntTag extends NumericTag {
     private final int value;
 
     private IntTag(int value) {
@@ -101,6 +101,6 @@ public class IntTag implements NumericTag {
 
     @Override
     public String toString() {
-        return value + "";
+        return "TAG_Int:" + value;
     }
 }

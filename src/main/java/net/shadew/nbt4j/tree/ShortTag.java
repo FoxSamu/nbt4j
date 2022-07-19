@@ -2,7 +2,7 @@ package net.shadew.nbt4j.tree;
 
 import net.shadew.nbt4j.TagType;
 
-public class ShortTag implements NumericTag {
+public final class ShortTag extends NumericTag {
     private final short value;
 
     private ShortTag(short value) {
@@ -101,6 +101,6 @@ public class ShortTag implements NumericTag {
 
     @Override
     public String toString() {
-        return value + "s";
+        return "TAG_Short:" + value;
     }
 }

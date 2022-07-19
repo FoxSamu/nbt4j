@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 import net.shadew.nbt4j.TagType;
 
-public class StringTag implements Tag {
+public final class StringTag extends Tag {
     public static final StringTag EMPTY = of("");
 
     private final String value;
@@ -31,12 +31,12 @@ public class StringTag implements Tag {
         return new StringTag(v);
     }
 
-    public String getString() {
+    public String asString() {
         return value;
     }
 
     public static long countBytes(StringTag tag) {
-        String data = tag.getString();
+        String data = tag.asString();
         return countBytes(data);
     }
 
@@ -62,7 +62,7 @@ public class StringTag implements Tag {
     }
 
     public static void serialize(StringTag tag, DataOutput out) throws IOException {
-        out.writeUTF(tag.getString());
+        out.writeUTF(tag.asString());
     }
 
     private static final Pattern SIMPLE_VALUE = Pattern.compile("[A-Za-z0-9._+-]+");
@@ -102,6 +102,6 @@ public class StringTag implements Tag {
 
     @Override
     public String toString() {
-        return makeSnbt(value);
+        return "TAG_String:" + makeSnbt(value);
     }
 }

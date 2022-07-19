@@ -2,8 +2,7 @@ package net.shadew.nbt4j.util;
 
 import java.io.InputStream;
 
-public class NullInputStream extends InputStream {
-
+public final class NullInputStream extends InputStream {
     public static final NullInputStream INSTANCE = new NullInputStream();
 
     private NullInputStream() {

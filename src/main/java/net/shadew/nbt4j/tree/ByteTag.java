@@ -2,7 +2,7 @@ package net.shadew.nbt4j.tree;
 
 import net.shadew.nbt4j.TagType;
 
-public class ByteTag implements NumericTag {
+public final class ByteTag extends NumericTag {
     // Let's just cache all possible byte tag instances to save performance when it comes to memory allocation and
     // garbage collection
     private static final ByteTag[] CACHE = new ByteTag[256];
@@ -114,6 +114,6 @@ public class ByteTag implements NumericTag {
 
     @Override
     public String toString() {
-        return value + "b";
+        return "TAG_Byte:" + value;
     }
 }

@@ -17,7 +17,7 @@ import net.shadew.nbt4j.Compression;
 import net.shadew.nbt4j.util.MalformedRegionFileException;
 import net.shadew.nbt4j.util.NullInputStream;
 
-public class RegionFile implements AutoCloseable, Flushable {
+public final class RegionFile implements AutoCloseable, Flushable {
     // Open flags
 
     /**

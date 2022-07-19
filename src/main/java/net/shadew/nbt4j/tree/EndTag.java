@@ -5,9 +5,9 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import net.shadew.nbt4j.TagType;
-import net.shadew.nbt4j.util.NBTException;
+import net.shadew.nbt4j.util.NbtException;
 
-public class EndTag implements Tag {
+public final class EndTag extends Tag {
     public static final EndTag INSTANCE = new EndTag();
 
     private EndTag() {
@@ -24,15 +24,15 @@ public class EndTag implements Tag {
     }
 
     public static EndTag doNotDeserialize(DataInput in, int nesting) throws IOException {
-        throw new NBTException("TAG_End can't be deserialized as standard tag");
+        throw new NbtException("TAG_End can't be deserialized as standard tag");
     }
 
     public static EndTag doNotSerialize(EndTag tag, DataOutput out) throws IOException {
-        throw new NBTException("TAG_End can't be serialized as standard tag");
+        throw new NbtException("TAG_End can't be serialized as standard tag");
     }
 
     @Override
     public String toString() {
-        return "(END)";
+        return "TAG_End";
     }
 }

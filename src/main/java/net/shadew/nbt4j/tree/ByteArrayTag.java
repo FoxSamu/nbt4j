@@ -5,24 +5,19 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import net.shadew.nbt4j.TagType;
-import net.shadew.nbt4j.util.FlexibleByteArray;
 
-public class ByteArrayTag extends FlexibleByteArray implements Tag {
-    public ByteArrayTag() {
+public final class ByteArrayTag extends Tag {
+    private static final ByteArrayTag EMPTY = of(0);
+
+    private final byte[] bytes;
+
+    private ByteArrayTag(int len) {
+        this.bytes = new byte[len];
     }
 
-    // To be consistent with other tag constructors (except empty constructors), these are private and must be accessed
-    // via one of the 'of' methods below
-    private ByteArrayTag(byte[] b, int off, int len) {
-        super(b, off, len);
-    }
-
-    private ByteArrayTag(byte... b) {
-        super(b);
-    }
-
-    private ByteArrayTag(FlexibleByteArray copy) {
-        super(copy);
+    private ByteArrayTag(byte[] bytes, int off, int len) {
+        this(len);
+        System.arraycopy(bytes, off, this.bytes, 0, len);
     }
 
     @Override
@@ -32,19 +27,39 @@ public class ByteArrayTag extends FlexibleByteArray implements Tag {
 
     @Override
     public ByteArrayTag copy() {
-        return of(this);
+        return of(bytes);
     }
 
-    public static ByteArrayTag of(byte... bytes) {
-        return new ByteArrayTag(bytes);
+    public byte[] bytes() {
+        return bytes;
+    }
+
+    public int length() {
+        return bytes.length;
+    }
+
+    public static ByteArrayTag of(int length) {
+        return new ByteArrayTag(length);
+    }
+
+    public static ByteArrayTag of(byte[] bytes) {
+        return new ByteArrayTag(bytes, 0, bytes.length);
     }
 
     public static ByteArrayTag of(byte[] bytes, int off, int len) {
         return new ByteArrayTag(bytes, off, len);
     }
 
-    public static ByteArrayTag of(FlexibleByteArray copy) {
-        return new ByteArrayTag(copy);
+    public static ByteArrayTag of(ByteArrayTag copy) {
+        return new ByteArrayTag(copy.bytes, 0, copy.length());
+    }
+
+    public static ByteArrayTag of(ByteArrayTag copy, int off, int len) {
+        return new ByteArrayTag(copy.bytes, off, len);
+    }
+
+    public static ByteArrayTag empty() {
+        return EMPTY;
     }
 
     public static long countBytes(ByteArrayTag tag) {
@@ -53,29 +68,18 @@ public class ByteArrayTag extends FlexibleByteArray implements Tag {
 
     public static void serialize(ByteArrayTag tag, DataOutput out) throws IOException {
         out.writeInt(tag.length());
-        FlexibleByteArray.writeBytes(tag, out);
+        out.write(tag.bytes);
     }
 
     public static ByteArrayTag deserialize(DataInput in, int nesting) throws IOException {
-        ByteArrayTag tag = new ByteArrayTag();
         int len = in.readInt();
-        FlexibleByteArray.readBytes(tag, in, len);
+        ByteArrayTag tag = new ByteArrayTag(len);
+        in.readFully(tag.bytes);
         return tag;
     }
 
     @Override
     public String toString() {
-        int iMax = length() - 1;
-        if (iMax == -1)
-            return "[B;]";
-
-        StringBuilder b = new StringBuilder();
-        b.append("[B;");
-        for (int i = 0; ; i++) {
-            b.append(get(i));
-            if (i == iMax)
-                return b.append(']').toString();
-            b.append(", ");
-        }
+        return "TAG_ByteArray[" + bytes.length + "]";
     }
 }

@@ -34,7 +34,7 @@ publishing {
     publications {
         maven(MavenPublication) {
             groupId = project.group
-            artifactId = 'eval'
+            artifactId = 'nbt4j'
             version = project.version
 
             from components.java

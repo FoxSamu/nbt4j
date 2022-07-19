@@ -7,10 +7,11 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import net.shadew.nbt4j.NbtVisitor;
 import net.shadew.nbt4j.TagType;
 import net.shadew.nbt4j.util.NbtException;
 
-public final class ListTag extends Tag implements List<Tag>, RandomAccess {
+public final class ListTag implements List<Tag>, RandomAccess, Tag {
     private TagType elementType = TagType.END;
     private final ArrayList<Tag> elements = new ArrayList<>();
 
@@ -569,5 +570,15 @@ public final class ListTag extends Tag implements List<Tag>, RandomAccess {
     @Override
     public String toString() {
         return "TAG_List[" + size() + "]";
+    }
+
+    @Override
+    public void accept(NbtVisitor visitor, String name) {
+        NbtVisitor v = visitor.visitList(elementType, size(), name);
+        if (v == null) return;
+
+        for (Tag t : this)
+            t.accept(v);
+        v.visitListEnd();
     }
 }

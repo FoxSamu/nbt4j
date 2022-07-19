@@ -1,8 +1,9 @@
 package net.shadew.nbt4j.tree;
 
+import net.shadew.nbt4j.NbtVisitor;
 import net.shadew.nbt4j.TagType;
 
-public final class ByteTag extends NumericTag {
+public final class ByteTag implements NumericTag {
     // Let's just cache all possible byte tag instances to save performance when it comes to memory allocation and
     // garbage collection
     private static final ByteTag[] CACHE = new ByteTag[256];
@@ -115,5 +116,10 @@ public final class ByteTag extends NumericTag {
     @Override
     public String toString() {
         return "TAG_Byte:" + value;
+    }
+
+    @Override
+    public void accept(NbtVisitor visitor, String name) {
+        visitor.visitByte(value, name);
     }
 }

@@ -1,8 +1,9 @@
 package net.shadew.nbt4j.tree;
 
+import net.shadew.nbt4j.NbtVisitor;
 import net.shadew.nbt4j.TagType;
 
-public final class FloatTag extends NumericTag {
+public final class FloatTag implements NumericTag {
     private final float value;
 
     private FloatTag(float value) {
@@ -102,5 +103,10 @@ public final class FloatTag extends NumericTag {
     @Override
     public String toString() {
         return "TAG_Float:" + value;
+    }
+
+    @Override
+    public void accept(NbtVisitor visitor, String name) {
+        visitor.visitFloat(value, name);
     }
 }

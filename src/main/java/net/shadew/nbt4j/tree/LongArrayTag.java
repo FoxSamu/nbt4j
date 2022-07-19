@@ -4,9 +4,10 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import net.shadew.nbt4j.NbtVisitor;
 import net.shadew.nbt4j.TagType;
 
-public final class LongArrayTag extends Tag {
+public final class LongArrayTag implements Tag {
     private static final LongArrayTag EMPTY = of(0);
 
     private final long[] longs;
@@ -86,5 +87,10 @@ public final class LongArrayTag extends Tag {
     @Override
     public String toString() {
         return "TAG_LongArray[" + longs.length + "]";
+    }
+
+    @Override
+    public void accept(NbtVisitor visitor, String name) {
+        visitor.visitLongArray(longs, name);
     }
 }

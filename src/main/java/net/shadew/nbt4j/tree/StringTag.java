@@ -5,9 +5,10 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
+import net.shadew.nbt4j.NbtVisitor;
 import net.shadew.nbt4j.TagType;
 
-public final class StringTag extends Tag {
+public final class StringTag implements Tag {
     public static final StringTag EMPTY = of("");
 
     private final String value;
@@ -103,5 +104,10 @@ public final class StringTag extends Tag {
     @Override
     public String toString() {
         return "TAG_String:" + makeSnbt(value);
+    }
+
+    @Override
+    public void accept(NbtVisitor visitor, String name) {
+        visitor.visitString(value, name);
     }
 }

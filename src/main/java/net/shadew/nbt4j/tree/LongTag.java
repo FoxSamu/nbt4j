@@ -1,8 +1,9 @@
 package net.shadew.nbt4j.tree;
 
+import net.shadew.nbt4j.NbtVisitor;
 import net.shadew.nbt4j.TagType;
 
-public final class LongTag extends NumericTag {
+public final class LongTag implements NumericTag {
     private final long value;
 
     private LongTag(long value) {
@@ -102,5 +103,10 @@ public final class LongTag extends NumericTag {
     @Override
     public String toString() {
         return "TAG_Long:" + value;
+    }
+
+    @Override
+    public void accept(NbtVisitor visitor, String name) {
+        visitor.visitLong(value, name);
     }
 }

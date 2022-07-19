@@ -3,9 +3,10 @@ package net.shadew.nbt4j.snbt;
 import java.util.Iterator;
 import java.util.Map;
 
+import net.shadew.nbt4j.NbtVisitor;
 import net.shadew.nbt4j.tree.*;
 
-public class SnbtSerializer {
+public class SnbtSerializer implements NbtVisitor {
     private static final String ANSI_NUMBER = "\033[91m";
     private static final String ANSI_STRING = "\033[92m";
     private static final String ANSI_KEY = "\033[96m";
@@ -83,7 +84,14 @@ public class SnbtSerializer {
 
     private void writeNumeric(NumericTag num) {
         addAnsi(ANSI_NUMBER);
-        builder.append(num.toString());
+        switch (num.type()) {
+            case BYTE -> builder.append(num.asByte()).append("b");
+            case SHORT -> builder.append(num.asShort()).append("s");
+            case INT -> builder.append(num.asInt());
+            case LONG -> builder.append(num.asLong()).append("l");
+            case FLOAT -> builder.append(num.asFloat()).append("f");
+            case DOUBLE -> builder.append(num.asDouble()).append("d");
+        }
         addAnsi(ANSI_RESET);
     }
 
@@ -121,7 +129,7 @@ public class SnbtSerializer {
         addNewline(pack);
         for (int i = 0; ; i++) {
             addAnsi(ANSI_NUMBER);
-            builder.append(tag.get(i));
+            builder.append(tag.bytes()[i]);
             addAnsi(ANSI_RESET);
             if (i == iMax) {
                 indent(-1);
@@ -148,7 +156,7 @@ public class SnbtSerializer {
         addNewline(pack);
         for (int i = 0; ; i++) {
             addAnsi(ANSI_NUMBER);
-            builder.append(tag.get(i));
+            builder.append(tag.ints()[i]);
             addAnsi(ANSI_RESET);
             if (i == iMax) {
                 indent(-1);
@@ -175,7 +183,7 @@ public class SnbtSerializer {
         addNewline(pack);
         for (int i = 0; ; i++) {
             addAnsi(ANSI_NUMBER);
-            builder.append(tag.get(i));
+            builder.append(tag.longs()[i]);
             addAnsi(ANSI_RESET);
             if (i == iMax) {
                 indent(-1);

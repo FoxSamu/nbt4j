@@ -1,8 +1,9 @@
 package net.shadew.nbt4j.tree;
 
+import net.shadew.nbt4j.NbtVisitor;
 import net.shadew.nbt4j.TagType;
 
-public final class IntTag extends NumericTag {
+public final class IntTag implements NumericTag {
     private final int value;
 
     private IntTag(int value) {
@@ -102,5 +103,10 @@ public final class IntTag extends NumericTag {
     @Override
     public String toString() {
         return "TAG_Int:" + value;
+    }
+
+    @Override
+    public void accept(NbtVisitor visitor, String name) {
+        visitor.visitInt(value, name);
     }
 }

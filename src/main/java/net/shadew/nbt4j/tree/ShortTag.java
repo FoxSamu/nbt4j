@@ -1,8 +1,9 @@
 package net.shadew.nbt4j.tree;
 
+import net.shadew.nbt4j.NbtVisitor;
 import net.shadew.nbt4j.TagType;
 
-public final class ShortTag extends NumericTag {
+public final class ShortTag implements NumericTag {
     private final short value;
 
     private ShortTag(short value) {
@@ -102,5 +103,10 @@ public final class ShortTag extends NumericTag {
     @Override
     public String toString() {
         return "TAG_Short:" + value;
+    }
+
+    @Override
+    public void accept(NbtVisitor visitor, String name) {
+        visitor.visitShort(value, name);
     }
 }

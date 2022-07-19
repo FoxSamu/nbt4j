@@ -4,9 +4,10 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import net.shadew.nbt4j.NbtVisitor;
 import net.shadew.nbt4j.TagType;
 
-public final class ByteArrayTag extends Tag {
+public final class ByteArrayTag implements Tag {
     private static final ByteArrayTag EMPTY = of(0);
 
     private final byte[] bytes;
@@ -81,5 +82,10 @@ public final class ByteArrayTag extends Tag {
     @Override
     public String toString() {
         return "TAG_ByteArray[" + bytes.length + "]";
+    }
+
+    @Override
+    public void accept(NbtVisitor visitor, String name) {
+        visitor.visitByteArray(bytes, name);
     }
 }

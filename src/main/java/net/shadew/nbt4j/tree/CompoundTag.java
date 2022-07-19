@@ -7,10 +7,11 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import net.shadew.nbt4j.NbtVisitor;
 import net.shadew.nbt4j.TagType;
 import net.shadew.nbt4j.util.NbtException;
 
-public final class CompoundTag extends Tag {
+public final class CompoundTag implements Tag {
     private LinkedHashMap<String, Tag> tags = new LinkedHashMap<>();
 
     public CompoundTag() {
@@ -490,5 +491,16 @@ public final class CompoundTag extends Tag {
     @Override
     public String toString() {
         return "TAG_Compound[" + tags.size() + "]";
+    }
+
+    @Override
+    public void accept(NbtVisitor visitor, String name) {
+        NbtVisitor v = visitor.visitCompound(name);
+        if (v == null) return;
+
+        for (Map.Entry<String, Tag> entry : tags.entrySet()) {
+            entry.getValue().accept(v, entry.getKey());
+        }
+        v.visitEnd();
     }
 }

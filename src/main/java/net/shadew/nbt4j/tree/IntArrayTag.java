@@ -4,9 +4,10 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import net.shadew.nbt4j.NbtVisitor;
 import net.shadew.nbt4j.TagType;
 
-public final class IntArrayTag extends Tag {
+public final class IntArrayTag implements Tag {
     private static final IntArrayTag EMPTY = of(0);
 
     private final int[] ints;
@@ -86,5 +87,10 @@ public final class IntArrayTag extends Tag {
     @Override
     public String toString() {
         return "TAG_IntArray[" + ints.length + "]";
+    }
+
+    @Override
+    public void accept(NbtVisitor visitor, String name) {
+        visitor.visitIntArray(ints, name);
     }
 }
